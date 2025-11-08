@@ -4,8 +4,8 @@
 
 # Here the instructions define your application as two services called "todo-app" and “todo-database”
 # The service “todo-app” is built from the Dockerfile in the /app directory,
-# and the service “todo-database” uses the official MongoDB image 
-# from Docker Hub - https://hub.docker.com/_/mongo. 
+# and the service “todo-database” uses the official MongoDB image
+# from Docker Hub - https://hub.docker.com/_/mongo.
 # You can add other services your application may depend on here.
 
 services:
@@ -14,14 +14,65 @@ services:
       context: ./app
     links:
       - todo-database
-    #volumes: 
-    #  - ./app:/usr/src/app
-    #  - /usr/src/app/node_modules
+    #   depends_on:
+    #     mongo-setup:
+    #       condition: service_completed_successfully
+    volumes:
+      - ./app:/usr/src/app
+      - app_node_modules:/usr/src/app/node_modules
     ports:
       - 3001:3001
+    networks:
+      - default
+      - mylocal-net
 
   todo-database:
     image: mongo:6
-    command: mongod --port 27018
+    container_name: todo-database
+    hostname: todo-database
+    command: mongod --port 27018 # --replSet rs0 --bind_ip_all
     ports:
       - 27018:27018
+    volumes:
+      - mongo_data:/data/db # Maps named volume to internal path
+    networks:
+      - default
+      - mylocal-net
+#    healthcheck:
+#      test:
+#        ["CMD", "test", "-f", "/tmp/mongodb-27018.sock"]
+#["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
+#["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+#["CMD", "mongosh", "--quiet", "--eval", "db.runCommand({ ping: 1 })"]
+#      interval: 10s
+#      timeout: 5s
+#      retries: 10
+#      start_period: 15s
+
+# mongo-setup:
+#   image: mongo:6
+# 2. Mount the script so the setup container can execute it
+#   volumes:
+#     - ./init-replica.js:/init-replica.js
+#   networks:
+#     - default
+#     - mylocal-net
+# 3. CRITICAL: Command runs the script using mongosh and then exits.
+#    The hostname MUST match the database container name.
+#   command: mongosh --host todo-database --port 27018 /init-replica.js
+# 4. CRITICAL: Wait for the database to be 'healthy' before running setup
+#   depends_on:
+#     todo-database:
+#       condition: service_healthy
+
+# --- NETWORK DEFINITIONS ---
+
+networks:
+  mylocal-net:
+    external: true
+
+# --- VOLUME DEFINITIONS ---
+volumes:
+  # 1. Persistent Data Volume
+  mongo_data:
+  app_node_modules:
