@@ -30,7 +30,9 @@ services:
     image: mongo:6
     container_name: todo-database
     hostname: todo-database
-    command: mongod --port 27018 # --replSet rs0 --bind_ip_all
+    # command: mongod --port 27018 # main branch
+    # https://stackoverflow.com/questions/76013265/how-to-do-a-mongodb-6-single-node-replicaset-with-docker-compose
+    command: [--replSet, my-replica-set, --bind_ip_all, --port, "27018"]
     ports:
       - 27018:27018
     volumes:
@@ -38,12 +40,10 @@ services:
     networks:
       - default
       - mylocal-net
-#    healthcheck:
-#      test:
-#        ["CMD", "test", "-f", "/tmp/mongodb-27018.sock"]
-#["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
-#["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
-#["CMD", "mongosh", "--quiet", "--eval", "db.runCommand({ ping: 1 })"]
+    healthcheck:
+      test: test $$(mongosh --port 27018 --quiet --eval "try {rs.initiate({_id:'my-replica-set',members:[{_id:0,host:\"todo-database:27018\"}]})} catch(e) {rs.status().ok}") -eq 1
+      interval: 10s
+      start_period: 30s
 #      interval: 10s
 #      timeout: 5s
 #      retries: 10
