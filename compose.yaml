@@ -21,7 +21,7 @@ services:
       - ./app:/usr/src/app
       - app_node_modules:/usr/src/app/node_modules
     ports:
-      - 3001:3001
+      - 3002:3001
     networks:
       - default
       - mylocal-net
@@ -30,7 +30,7 @@ services:
     image: mongo:6
     container_name: todo-database
     hostname: todo-database
-    command: mongod --port 27018 # --replSet rs0 --bind_ip_all
+    command: mongod --port 27018 --replSet rs0 --bind_ip_all
     ports:
       - 27018:27018
     volumes:

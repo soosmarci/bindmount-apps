@@ -10,6 +10,7 @@ FROM node:${NODE_VERSION}-alpine
 
 # Use production node environment by default.
 ENV NODE_ENV production
+ENV NPM_CONFIG_UPDATE_NOTIFIER=false
 
 # Change working directory
 WORKDIR /usr/src/app
@@ -33,4 +34,4 @@ COPY . .
 EXPOSE 3001
 
 # Run the application.
-CMD npm run start
+CMD ["node", "server.js"]

@@ -36,22 +36,23 @@
                                 <ul class="nav flex-column">
                                     <% tasks.forEach(todo=> { %>
                                         <li class="nav-item">
-                                            <div class="d-flex justify-content-between py-1">
-                                                <div class="d-flex flex-row">
-                                                    <div>
-                                                        <%= todo.task %>
-                                                            <p class="text-muted"><small>
-                                                                    <%= moment(todo.created_at).fromNow() %>
-                                                                </small></p>
-                                                    </div>
-                                                </div>
-                                                <a href="javascript:;" onclick="this.children[0].submit()"
-                                                    class="text-danger">
-                                                    <form method="POST" action="/todo/destroy">
+                                            <div class="d-flex justify-content-between align-items-start py-2">
+                                                <div class="flex-grow-1 mr-2">
+                                                    <form method="POST" action="/todo/update" class="form-inline w-100">
                                                         <input type="hidden" name="_key" value="<%= todo._id %>" />
+                                                        <input type="text" name="task" class="form-control flex-grow-1 mr-2" value="<%= todo.task %>" required />
+                                                        <button type="submit" class="btn btn-sm btn-outline-primary">Save</button>
                                                     </form>
-                                                    <i class="fa fa-trash-o"></i>
-                                                </a>
+                                                    <p class="text-muted mb-0 mt-1"><small>
+                                                            <%= moment(todo.created_at).fromNow() %>
+                                                        </small></p>
+                                                </div>
+                                                <form method="POST" action="/todo/destroy" class="mb-0">
+                                                        <input type="hidden" name="_key" value="<%= todo._id %>" />
+                                                        <button type="submit" class="btn btn-sm text-danger" title="Delete task">
+                                                            <i class="fa fa-trash-o"></i>
+                                                        </button>
+                                                </form>
                                             </div>
                                         </li>
                                         <% }) %>

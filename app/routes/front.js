@@ -23,6 +23,28 @@ router.post('/', (req, res) => {
     .catch(err => console.log(err));
 });
 
+// POST - Update todo item
+router.post('/todo/update', async (req, res) => {
+    const taskKey = req.body._key;
+    const updatedTask = (req.body.task || '').trim();
+
+    if (!updatedTask) {
+        return res.redirect('/');
+    }
+
+    try {
+        await Todo.findOneAndUpdate(
+            { _id: taskKey },
+            { $set: { task: updatedTask } },
+            { runValidators: true }
+        );
+    } catch (err) {
+        console.log(err);
+    }
+
+    res.redirect('/');
+});
+
 // POST - Destroy todo item
 router.post('/todo/destroy', async (req, res) => {
     const taskKey = req.body._key;
