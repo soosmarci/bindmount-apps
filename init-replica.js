@@ -11,8 +11,7 @@ try {
     rs.initiate(
         {
             _id: "rs0",
-            // CRITICAL FIX: Use 127.0.0.1 for the internal loopback validation
-            members: [{ _id: 0, host: "127.0.0.1:27018" }]
+            members: [{ _id: 0, host: "todo-database:27018" }]
         }
     );
     print(`Replica set initiated. Waiting for PRIMARY...`);

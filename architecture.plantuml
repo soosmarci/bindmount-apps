@@ -1,0 +1,67 @@
+@startuml kafka-demo-architecture
+left to right direction
+skinparam componentStyle rectangle
+skinparam packageStyle rectangle
+skinparam shadowing false
+
+actor User
+
+package "Node.js Application" {
+  [Frontend] as FE
+  [Backend] as API
+}
+
+database "MongoDB" as MDB
+
+package "Confluent Platform" {
+  
+  [Control Center] as CC
+
+  package "Kafka components" {
+  [Zookeeper] as ZK
+  [Schema Registry] as SR
+  [Kafka Connect] as KC
+  [MongoSourceConnector] as MSC
+
+    package "Kafka Cluster" {
+        [Broker 1] as B1
+        [Broker 2] as B2
+        [Broker 3] as B3
+    }
+  }
+}
+
+package "Java Spring Consumer Side" {
+  [Spring Boot App\nKafka Consumer] as SPRING
+  [Hibernate / JPA] as HIB
+  database "Oracle DB" as ORA
+}
+
+User --> FE
+FE --> API
+API --> MDB
+
+MDB --> MSC : change stream / source records
+MSC --> KC
+KC --> B1 : publish records
+KC --> B2 : publish records
+KC --> B3 : publish records
+
+ZK .. B1
+ZK .. B2
+ZK .. B3
+
+SR .. KC
+SR .. B1
+SR .. B2
+SR .. B3
+
+CC .. "Kafka components"
+
+B1 --> SPRING : consume records
+B2 --> SPRING : consume records
+B3 --> SPRING : consume records
+
+SPRING --> HIB
+HIB --> ORA
+@enduml
